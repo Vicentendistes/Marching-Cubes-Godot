@@ -1,0 +1,41 @@
+[gd_scene load_steps=7 format=3 uid="uid://2isg3t8knhyo"]
+
+[ext_resource type="Script" path="res://mesh.gd" id="1_bi0x3"]
+[ext_resource type="Script" path="res://CharacterBody3D.gd" id="2_4djau"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_v2byf"]
+
+[sub_resource type="Sky" id="Sky_1tgw3"]
+sky_material = SubResource("ProceduralSkyMaterial_v2byf")
+
+[sub_resource type="Environment" id="Environment_2papl"]
+background_mode = 2
+sky = SubResource("Sky_1tgw3")
+ambient_light_source = 3
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rmlun"]
+height = 1.0
+
+[node name="Node3D" type="Node3D"]
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00160313, -0.0125164, -0.00306654)
+skeleton = NodePath("../..")
+script = ExtResource("1_bi0x3")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00160313, -0.0125164, -0.00306654)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_2papl")
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -6, 7, 11)
+script = ExtResource("2_4djau")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+shape = SubResource("CapsuleShape3D_rmlun")
+
+[node name="Camera3D" type="Camera3D" parent="CharacterBody3D"]
