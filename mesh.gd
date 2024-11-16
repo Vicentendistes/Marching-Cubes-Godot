@@ -1,6 +1,6 @@
 extends MeshInstance3D
 
-var SIZE = Vector3i(5, 5, 5)  # Tamaño del campo
+var SIZE = Vector3i(20, 20, 30)  # Tamaño del campo
 const THRESHOLD = 0.5  # Umbral para Marching Cubes
 
 var array_mesh : ArrayMesh
@@ -10,6 +10,10 @@ var uvs = PackedVector2Array()
 var normals = PackedVector3Array()
 var indices = PackedInt32Array()
 var colors = PackedColorArray()
+
+var spheres = Node3D.new()
+
+
 
 var time_start = 0
 var time_now = 0
@@ -24,14 +28,17 @@ func _ready():
 	#field = generate_spherical_scalar_field()
 	field = generate_noise_scalar_field()
 	
+	spheres.name = "Spheres"
+	get_tree().root.call_deferred("add_child", spheres)
+	spheres.visible = false
 	# Crear esferas en cada punto del campo escalar
 	for x in range(SIZE.x):
 		for y in range(SIZE.y):
 			for z in range(SIZE.z):
-				if field[x][y][z] > THRESHOLD+1:
+				if field[x][y][z] != 0:#> THRESHOLD:
 					var sphere = create_sphere(field[x][y][z])
 					sphere.transform.origin = Vector3(x, y, z)
-					get_tree().root.call_deferred("add_child", sphere)
+					spheres.add_child(sphere)
 	
 	time_start = Time.get_unix_time_from_system()
 	
@@ -43,7 +50,7 @@ func _ready():
 	
 	time_now = Time.get_unix_time_from_system()
 	var time_elapsed = time_now - time_start
-	print(time_elapsed, ", ", SIZE.x)
+	print("Se demoró: ",time_elapsed, ", para un tamaño (", SIZE.x,", ", SIZE.y,", ", SIZE.z,")")
 	
 	# Crear nuevo material y agregarlo al mesh
 	var material = StandardMaterial3D.new()
@@ -59,35 +66,9 @@ func _ready():
 func _input(event):
 	if event.is_action_pressed("show_mesh"):
 		
-		SIZE = SIZE + Vector3i(5, 5, 5)
-		field = generate_noise_scalar_field()
+		self.visible = not self.visible
+		spheres.visible = not spheres.visible
 		
-		time_start = Time.get_unix_time_from_system()
-	
-		# Crear la malla usando Marching Cubes
-		var mesh_arrays = generate_marching_cubes_mesh()
-		array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, mesh_arrays)
-		mesh = array_mesh
-		
-		
-		time_now = Time.get_unix_time_from_system()
-		var time_elapsed = time_now - time_start
-		print(time_elapsed,", ",SIZE.x)
-		
-		# Crear nuevo material y agregarlo al mesh
-		var material = StandardMaterial3D.new()
-		material.vertex_color_use_as_albedo = true
-		material.cull_mode = BaseMaterial3D.CULL_DISABLED
-		array_mesh.surface_set_material(0, material)
-		
-		# Crear colisión a la malla 
-		var collision = get_parent().get_node("CollisionShape3D")
-		collision.shape = array_mesh.create_trimesh_shape()
-		collision.shape.backface_collision = true
-		#if self.visible == true:
-			#self.visible = false
-		#else:
-			#self.visible = true
 
 # Generar campo escalar con valores aleatorios
 func generate_random_scalar_field() -> Array:
